@@ -1,0 +1,17 @@
+THIS IS GOING TO REQUIRE NL PARSING
+
+Big list of excludes
+{P} (paw) whole card
+{H} whole card (unique)
+{E} (energy) whole card (for now?)
+
+Need to generalize:
+ - number-words ("NW"?)
+ - Creature type, then (CTYPE)+ -> CTYPE
+
+
+Need to remove ability words "whatever — Do the thing", BUT
+	some " — " aren't ability words: max speed (???), sagas
+	the " — " rabbit hole is VERY DEEP @_@
+
+Add "choose N" bullets to effects (could also do {P} above, actually...)
