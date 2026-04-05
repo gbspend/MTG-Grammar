@@ -13,9 +13,9 @@ names = set()
 cards = []
 for s in data:
     for c in data[s]['cards']:
-        n = c['name']
         if 'faceName' in c:
-            n = c['faceName']
+            c['name'] = c['faceName']
+        n = c['name']
         if n not in names and 'paper' in c['availability'] and 'text' in c:
             for e in excl:
                 if e in c:
