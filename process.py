@@ -1,6 +1,12 @@
 import re
 import pickle
 from pprint import pprint
+import spacy
+
+# Load a small Eng  lish model (fast, good enough for normalization)
+nlp = spacy.load("en_core_web_sm")
+#text = "At the beginning of your end step, if you gained life this turn, create a 4/4 white Angel creature token with flying"
+#doc = nlp(text)
 
 types = {'Land', 'Instant', 'Creature', 'Sorcery', 'Planeswalker', 'Enchantment', 'Battle', 'Artifact', 'Kindred'}
 
@@ -36,9 +42,20 @@ def generalize(s,c):
             s = re.sub(r"\b"+ct+r"s\b","CTYPE",s)
     s = re.sub(r"(CTYPE )+CTYPE","CTYPE",s)
     s = re.sub(r'\d+','N',s)
-    for num in ["one","two","three","four","five","six","seven","eight","nine","ten"]:
+    for num in [
+            "one","two","three","four","five","six","seven","eight","nine","ten",
+            "eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen",
+            "eighteen", "nineteen", "twenty", "ninety-nine"
+        ]:
         if num in s:
             s = re.sub(r"\b"+num+r"\b","N",s)
+    for col in ["white","blue","black","red","green","colorless","multicolored"]:
+        if col in s:
+            s = re.sub(r"\b"+col+r"\b","COLOR",s)
+    if "/" in s:
+        s = re.sub(r"[XN]/[XN]","PT",s)
+        s = re.sub(r"[+-]\w\/[+-]\w","PTMOD",s)
+        #after this, only "/" left is "and/or"
     s = s.replace("{Q}","{T}") #untap -> tap
     s = re.sub(r"\{[^T}]*\}","{M}",s) #{mana}
     s = re.sub(r"(\{M\})+","MANA", s)
@@ -77,6 +94,15 @@ def beforeAfter(s, sub):
         s = s[j:]
     return ret
 
+#go through all card texts and return SET of reg matches
+def matchSet(cards, reg):
+    s = set()
+    for c in cards:
+        s.update(re.findall(reg, c['text']))
+    return s
+
+#=====================================================================
+
 with open('cards.pkl', 'rb') as file:
     cards = pickle.load(file)
 
@@ -109,6 +135,8 @@ for c in cards:
     focus.append(c)
 
 
+
+#Working on costs
 ci = set()
 for s in costs:
     if " and " in s:
@@ -128,4 +156,6 @@ for s in sorted(ci):
 
 
 #find all counter types...
-cs = set([s.strip().replace("counters","counter").split("\n")[0].replace(".","") for s in c if "countered" not in s and "," not in s])
+#c = allBeforeAfter(cards, " counter")
+#cs = set([s.strip().replace("counters","counter").split("\n")[0].replace(".","") for s in c if "countered" not in s and "," not in s])
+

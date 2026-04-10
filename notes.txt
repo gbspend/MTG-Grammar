@@ -7,7 +7,8 @@ Big list of excludes
 
 Need to generalize:
  - number-words ("NW"?)
- - Creature type, then (CTYPE)+ -> CTYPE
+
+Handle X... tricky because it's woven throughout at least 2 different grammar pieces...
 
 
 Need to remove ability words "whatever — Do the thing", BUT
