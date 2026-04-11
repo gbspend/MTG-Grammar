@@ -10,9 +10,21 @@ Need to generalize:
 
 Handle X... tricky because it's woven throughout at least 2 different grammar pieces...
 
+detect "X, Y, or Z": Use spacy dep parse: conj!
+
+reg = r"([A-Z]{2,})(, \1)*,? (and|or) \1"
+matches
+- MANA, MANA, or MANA
+- COLOR and COLOR
+- COLOR or COLOR
+- etc
+DOESNT match
+- g or g
+- E or E
 
 Need to remove ability words "whatever — Do the thing", BUT
 	some " — " aren't ability words: max speed (???), sagas
 	the " — " rabbit hole is VERY DEEP @_@
 
 Add "choose N" bullets to effects (could also do {P} above, actually...)
+
