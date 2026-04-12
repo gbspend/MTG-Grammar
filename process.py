@@ -37,16 +37,17 @@ matchexcl = ['{P}', '{H}', '{E}', " | ", "• "]
 #return either:
 #   generalized string ({4} -> {N} etc etc), OR
 #   None if exclude
-def generalize(s,c):
+def generalize(s,c=None):
     global q_abils
     for e in matchexcl:
         if e in s:
             return None
-    s = s.replace(c['name'],"~")
-    s = s.replace(c['name'].split(",")[0],"~")
-    for ty in c['type'].replace("—","").split() + ["permanent", "spell","token"]:
-        if ty.lower() in s.lower():
-            s = re.sub(r"this "+ty,"~",s,flags=re.I)
+    if c:
+        s = s.replace(c['name'],"~")
+        s = s.replace(c['name'].split(",")[0],"~")
+        for ty in c['type'].replace("—","").split() + ["permanent", "spell","token"]:
+            if ty.lower() in s.lower():
+                s = re.sub(r"this "+ty,"~",s,flags=re.I)
     for ct in ctypes:
         if ct in s: #check before doing slow re.sub
             s = re.sub(r"\b"+ct+r"\b","CTYPE",s)
@@ -84,6 +85,8 @@ def generalize(s,c):
     #last step: 2+ spaces -> 1 space
     s = re.sub("[ ]+"," ",s)
     return s
+
+#== REAL TIME HELPERS =======================================================
 
 def allBeforeAfter(cards, sub):
     ret = []
@@ -131,83 +134,85 @@ def matchSub(cards, sub):
             l.append(text)
     return l
 
-#=====================================================================
+#== MAIN ===================================================================
 
-with open('cards.pkl', 'rb') as file:
-    cards = pickle.load(file)
+if __name__ == "__main__":
 
-#subset of cards to focus on
-focus = []
+    with open('cards.pkl', 'rb') as file:
+        cards = pickle.load(file)
 
-costs = []
-#things like:
-#   <cost>:<effect>
-#   When <trigger>, <effect>
-effects = []
+    #subset of cards to focus on
+    focus = []
 
-for c in cards:
-    if 'text' not in c:
-        continue
-    t = generalize(c['text'],c)
-    if t is None:
-        continue
-    c['text'] = t
-    lines = c['text'].split("\n")
-    for l in lines:
-        i = l.find(":")
-        if i == -1:
+    costs = []
+    #things like:
+    #   <cost>:<effect>
+    #   When <trigger>, <effect>
+    effects = []
+
+    for c in cards:
+        if 'text' not in c:
             continue
-        cost = l[:i].strip()
-        effect = l[i+1:].strip()
-        costs.append(cost)
-        effects.append(effect)
-    c['lines'] = lines #TEMP?
-    focus.append(c)
+        t = generalize(c['text'],c)
+        if t is None:
+            continue
+        c['text'] = t
+        lines = c['text'].split("\n")
+        for l in lines:
+            i = l.find(":")
+            if i == -1:
+                continue
+            cost = l[:i].strip()
+            effect = l[i+1:].strip()
+            costs.append(cost)
+            effects.append(effect)
+        c['lines'] = lines #TEMP?
+        focus.append(c)
 
 
 
-#Working on costs
-ci = set()
-for s in costs:
-    if " and " in s:
-        continue
-    for i in s.split(","):
-        j = i.find(" — ")
-        if j != -1:
-            i = i[j+3:]
-        ci.add(i.strip())
+    #Working on costs
+    ci = set()
+    for s in costs:
+        if " and " in s:
+            continue
+        for i in s.split(","):
+            j = i.find(" — ")
+            if j != -1:
+                i = i[j+3:]
+            ci.add(i.strip())
 
 
 
-for s in sorted(ci)[:10]:
-    print(s)
-
-
-
-
-posts = set()
-for s in matchSet(focus, r"create[^.]+token[^.]*\.", True):
-	i = s.find(" ")
-	p = s[i+1:]
-	if s[:i].lower() == "created":
-		continue
-	p = re.sub(r"([A-Z]{2,})(, \1)*,? (and|or) \1",r"\1",p)
-	ALEG = ", a legendary "
-	i = p.find(ALEG)
-	if i != -1:
-		p = "a "+p[i+len(ALEG):]
-	posts.add(p)
-
-create = sorted(posts)
-
-for s in create[:10]:
-    print(repr(s))
+    for s in sorted(ci)[:10]:
+        print(s)
 
 
 
 
+    posts = set()
+    for s in matchSet(focus, r"create[^.]+token[^.]*\.", True):
+        i = s.find(" ")
+        p = s[i+1:]
+        if s[:i].lower() == "created":
+            continue
+        p = re.sub(r"([A-Z]{2,})(, \1)*,? (and|or) \1",r"\1",p)
+        ALEG = ", a legendary "
+        i = p.find(ALEG)
+        if i != -1:
+            p = "a "+p[i+len(ALEG):]
+        posts.add(p)
 
-#find all counter types...
-#c = allBeforeAfter(cards, " counter")
-#cs = set([s.strip().replace("counters","counter").split("\n")[0].replace(".","") for s in c if "countered" not in s and "," not in s])
+    create = sorted(posts)
+
+    for s in create[:10]:
+        print(repr(s))
+
+
+
+
+
+    #find all counter types...
+    #c = allBeforeAfter(cards, " counter")
+    #cs = set([s.strip().replace("counters","counter").split("\n")[0].replace(".","") for s in c if "countered" not in s and "," not in s])
 

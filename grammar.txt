@@ -1,0 +1,33 @@
+EFFECT: [
+	{
+		name: CREATE_CTOKEN,
+		pattern: [create, N, PT, COLOR, CTYPE, creature, token, WITH_EXP],
+		slots: [N, PT, COLOR, CTYPE],
+		output: {
+			type: CREATE,
+			pt: $PT,
+			color: $COLOR,
+			subtype: $TYPE
+		}
+	},
+	{
+		name: CREATE_OTOKEN,
+		pattern: [create, N, COLOR, TYPE, token],
+		slots: [PT, COLOR, TYPE],
+		output: {
+			type: CREATE,
+			pt: $PT,
+			color: $COLOR,
+			subtype: $TYPE
+		}
+	},
+	{
+		name: DRAW,
+		pattern: [draw, NUMBER, cards],
+		slots: [NUMBER],
+		output: {
+			type: DRAW,
+			count: $NUMBER
+		}
+	}
+]

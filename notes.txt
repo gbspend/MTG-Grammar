@@ -28,3 +28,9 @@ Need to remove ability words "whatever — Do the thing", BUT
 
 Add "choose N" bullets to effects (could also do {P} above, actually...)
 
+Wow... this does NOT work: 
+doc = nlp(c['text'])
+for token in doc:
+    if "PROPN" in token.pos_:
+		...
+e.g. doc = nlp('Defender\nFlying') marks "Defender" as PROPN...
