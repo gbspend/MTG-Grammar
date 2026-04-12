@@ -20,7 +20,19 @@ for s in data:
             for e in excl:
                 if e in c:
                     del c[e]
+            #remove parentheticals
             t = re.sub(r'\([^)]*\)', '', c['text']).strip()
+            #replace name with ~
+            #   TODO: doesn't handle legendary-first-name in text WITHOUT comma in name:
+            #           is:commander -name:"," o:~
+            t = t.replace(c['name'],"~")
+            t = t.replace(c['name'].split(",")[0],"~")
+            for ty in c['type'].replace("—","").split() + ["permanent", "spell","token"]:
+                ty = ty.strip()
+                if not ty:
+                    continue
+                if ty.lower() in t.lower():
+                    t = re.sub(r"this "+ty,"~",t,flags=re.I)
             lines = []
             for s in t.split("\n"):
                 s = s.strip()

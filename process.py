@@ -42,12 +42,6 @@ def generalize(s,c=None):
     for e in matchexcl:
         if e in s:
             return None
-    if c:
-        s = s.replace(c['name'],"~")
-        s = s.replace(c['name'].split(",")[0],"~")
-        for ty in c['type'].replace("—","").split() + ["permanent", "spell","token"]:
-            if ty.lower() in s.lower():
-                s = re.sub(r"this "+ty,"~",s,flags=re.I)
     for ct in ctypes:
         if ct in s: #check before doing slow re.sub
             s = re.sub(r"\b"+ct+r"\b","CTYPE",s)
@@ -133,6 +127,12 @@ def matchSub(cards, sub):
         if sub in text:
             l.append(text)
     return l
+
+def hasChar(cards, ch):
+    for c in focus:
+        if ch in c['text']:
+            pprint(c)
+            return
 
 #== MAIN ===================================================================
 
