@@ -4,23 +4,19 @@
 import json
 import re
 
-ATOM = "ATOM"
-
-#terminals are {uppercase + _}
-def isNonTerm(s):
-    s = s.replace("_","")
-    return s.upper() and s.isalpha()
-
 def load(fname):
-    with open(fname, r) as file:
+    with open(fname, "r") as file:
         content = file.read()
-    pre = re.sub(r"\b([\w$]+)\b",r'"\1"',content)
+    pre = re.sub(r"([\w$?*|]+)",r'"\1"',content)
     pre = re.sub(r'"\s+"',' ',pre) # "city":"New" "York" -> "city":"New York"
     obj = json.loads(pre)
     return obj
 
     #"Validate" basic idea: every non-term referenced in grammar must exist in grammar
     #   I think even while building grammar I want to enforce this...
+    #   Hm, I think seq's have to be ordered from longest to shortest
+    #       (...assuming I do need multiple seq per non-term...)
+    #       otherwise it'll prematurely match
     '''
     non_terms = set() #all non-terminals
     for k in obj.keys():

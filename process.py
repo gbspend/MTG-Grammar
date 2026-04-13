@@ -73,8 +73,8 @@ def generalize(s,c=None):
         q_abils.append(abil)
         repl = "QUOTABIL"
         #if abil ends in period, add one after QUOTABIL
-        if abil[-1] == ".":
-            repl += "."
+        if abil[-1] == "." or abil[-1] == ",":
+            repl += abil[-1]
         s = re.sub(quot_re,repl,s,count=1)
     #last step: 2+ spaces -> 1 space
     s = re.sub("[ ]+"," ",s)

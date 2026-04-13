@@ -1,7 +1,11 @@
-EFFECT: [
+[
+	{
+		name: WITH_EXP,
+		seq: [with, *, PERIOD]
+	},
 	{
 		name: CREATE_CTOKEN,
-		seq: [create, N, PT, COLOR, CTYPE, creature, token, WITH_EXP]
+		seq: [create, a|an|N, PT, COLOR, CTYPE, creature, token, WITH_EXP?]
 	},
 	{
 		name: CREATE_OTOKEN,
@@ -9,6 +13,6 @@ EFFECT: [
 	},
 	{
 		name: DRAW,
-		seq: [draw, NUMBER, cards]
+		seq: [draw, N, cards]
 	}
 ]

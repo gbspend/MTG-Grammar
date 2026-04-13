@@ -1,7 +1,9 @@
+import atomize
+import gram2obj
 from pprint import pprint
-from process import ctypes
 import re
 
+'''
 GRAMMAR = {
     "EFFECT": [
         {
@@ -27,103 +29,96 @@ GRAMMAR = {
         }
     ]
 }
+'''
 
-NUM_LITS = [
-    "a", "an", "one","two","three","four","five","six","seven","eight","nine","ten",
-    "eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen",
-    "eighteen", "nineteen", "twenty", "ninety-nine"
-]
+#for old funcs, see git
 
-CTYPES = [s.lower() for s in ctypes]
+def match_pattern(tokens, rule, start=0):
+    pattern = rule["seq"]
 
-def normalize_tokens(text):
-    words = text.lower().split()
-
-    result = []
-    for w in words:
-        if w in {"white", "blue", "black", "red", "green"}:
-            result.append(("COLOR", w))
-            continue
-        if "/" in w:  # crude PT detection
-            result.append(("PT", w))
-            continue
-        if w in NUM_LITS or re.match(r'^\d+$',w):
-            result.append(("N", w))
-            continue
-        is_ctype = False
-        for s in CTYPES:
-            if w == s or w == s+"s":
-                is_ctype = True
-                break
-        if is_ctype:
-            result.append(("CTYPE", w))
-            continue
-        result.append(("LITERAL", w))
-
-    return result
-
-def match_pattern(tokens, rule):
-    pattern = rule["pattern"]
-    slots = {}
-
-    i = 0
+    i = start #needed?
     j = 0
+    
+    FALSE_VAL = -1
 
+    in_star = False
     while i < len(tokens) and j < len(pattern):
-        token_type, token_value = tokens[i]
+        curr = tokens[i]
+        #DON'T OVERUSE THIS!
+        #Leave periods and commas in <tokens> for readability, but match with
+        #   "PERIOD" and "COMMA" in grammar for ease of use
+        if curr == ".": curr = "PERIOD"
+        elif curr == ",": curr = "COMMA"
+        
         expected = pattern[j]
-
-        if expected == token_type:
-            slots[expected] = token_value
-            i += 1
+        
+        if not in_star and expected == "*":
+            in_star = True
             j += 1
-        elif expected == token_value:
-            i += 1
-            j += 1
-        else:
-            return None
+                
+        optional = False
+        if expected[-1] == "?":
+            optional = True
+            expected = expected[:-1]
+            
+        found = False
+        for e in expected.split("|"):
+            if e == curr or e == curr.lower(): #TODO: THIS IS HACKY (REQ $ before non-terms in grammar?)
+                i += 1
+                j += 1
+                found = True
+                in_star = False
+                break
+        if not found:
+            if in_star:
+                i += 1
+            elif optional:
+                j += 1
+            else:
+                #print("\t*Mandatory token not matched:",rule['name'],":",i,j)
+                return FALSE_VAL
 
     if j == len(pattern):
-        return slots
+        return i #token index of where pattern ended!
+    else:
+        #print("\t*Pattern not finished:",rule['name'],":",i,j)
+        return FALSE_VAL
 
-    return None
+def parse_with_grammar(grammar, text):
+    text,subs = atomize.atomize(text)
+    #just append to subs!
+    #   for now, "replaced"s generated here will be list of toks instead of single string, but that's OK?
+    tokens = atomize.smart_split(text)
+    print("BEFORE", tokens)
 
-def build_output(rule, slots):
-    output = {}
+    for i in range(len(grammar)):
+        rule = grammar[i]
+        for start in range(len(tokens)):
+            end = match_pattern(tokens, rule,start)
+            if end != -1:
+                n = rule['name']
+                subs.append((n,tokens[start:end])) #BEFORE changing tokens
+                tokens = tokens[:start] + [n] + tokens[end:]
+                i = 0 #RESTART rules!
+                break
 
-    for k, v in rule["output"].items():
-        if isinstance(v, str) and v.startswith("$"):
-            slot_name = v[1:]
-            output[k] = slots.get(slot_name)
-        else:
-            output[k] = v
-
-    return output
-
-def parse_with_grammar(text, category):
-    tokens = normalize_tokens(text)
-
-    for rule in GRAMMAR[category]:
-        slots = match_pattern(tokens, rule)
-        if slots is not None:
-            return build_output(rule, slots)
-
-    return None
+    return tokens, subs
+    #how to detect "failure"? I guess leftover literals...
 
 if __name__ == '__main__':
+    grammar = gram2obj.load("grammar.txt")
     tests = [
-        "create a 1/1 green saproling creature token",
-        "create a 4/4 white angel creature token with flying",
-        "draw two cards",
-        "destroy target creature"
-        ]
+        "Create a 1/1 green Saproling creature token.",
+        "Create a 4/4 white Angel creature token with flying.",
+        "Draw two cards.",
+        "At the beginning of your upkeep, draw two cards.",
+        "Destroy target creature."
+    ]
     
     for t in tests:
         print(t)
-        o = parse_with_grammar(t, "EFFECT")
-        if not o:
-            print("FAILED")
-        else:
-            pprint(o)
+        tokens, subs = parse_with_grammar(grammar,t)
+        print("AFTER ", tokens)
+        pprint(subs)
         print()
     

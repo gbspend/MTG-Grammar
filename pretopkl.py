@@ -26,7 +26,8 @@ for s in data:
             #   TODO: doesn't handle legendary-first-name in text WITHOUT comma in name:
             #           is:commander -name:"," o:~
             t = t.replace(c['name'],"~")
-            t = t.replace(c['name'].split(",")[0],"~")
+            if "Legendary" in c['type']:
+                t = t.replace(c['name'].split()[0],"~")
             for ty in c['type'].replace("—","").split() + ["permanent", "spell","token"]:
                 ty = ty.strip()
                 if not ty:
