@@ -22,8 +22,10 @@ def match_pattern(tokens, rule, start=0):
         #DON'T OVERUSE THIS!
         #Leave periods and commas in <tokens> for readability, but match with
         #   "PERIOD" and "COMMA" in grammar for ease of use
+        #   i.e. : doesn't match quote-adder!
         if curr == ".": curr = "PERIOD"
         elif curr == ",": curr = "COMMA"
+        elif curr == ":": curr = "COLON"
         
         expected = pattern[j]
         
