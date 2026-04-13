@@ -1,0 +1,48 @@
+import atomize
+import gram2obj
+import parse
+import pickle
+from pprint import pprint
+
+def all_parsed(tokens):
+    for tok in tokens:
+        if tok == "." or tok == ",":
+            continue
+        if not parse.isNonTerm(tok):
+            return False
+    return True
+
+def print_percent(name, n, total):
+    p = (n/total) * 100
+    print(name,n,f"({p:.2f}%)")
+
+if __name__ == "__main__":
+
+    with open('cards.pkl', 'rb') as file:
+        cards = pickle.load(file)
+
+    grammar = gram2obj.load("grammar.txt")
+    
+    N = 100
+    total = 0
+    done = 0
+    part = 0
+    for c in cards:
+        for line in c['text'].split("\n"):
+            old_tok, old_sub = parse.tokenize(line)
+            tokens, subs = parse.parse_with_grammar(grammar,line)
+            total += 1
+            if len(old_tok) > len(tokens):
+                part += 1
+                if all_parsed(tokens):
+                    done += 1
+                    print(line)
+                    print(old_tok)
+                    print(tokens)
+                    pprint(subs)
+                    print()
+    
+    print("Total:",total)
+    print_percent("Done: ",done,total)
+    print_percent("Part: ",part,total)
+    #TODO collate and report failures/partials AND false positives! BUT HOW???

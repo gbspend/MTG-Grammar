@@ -3,36 +3,6 @@ import gram2obj
 from pprint import pprint
 import re
 
-'''
-GRAMMAR = {
-    "EFFECT": [
-        {
-            "name": "CREATE_TOKEN",
-            "pattern": ["create", "N", "PT", "COLOR", "CTYPE", "creature", "token"],
-            "slots": ["N", "PT", "COLOR", "CTYPE"],
-            "output": {
-                "type": "CREATE",
-                "num": "$N",
-                "pt": "$PT",
-                "color": "$COLOR",
-                "ctype": "$CTYPE"
-            }
-        },
-        {
-            "name": "DRAW",
-            "pattern": ["draw", "N", "cards"],
-            "slots": ["N"],
-            "output": {
-                "type": "DRAW",
-                "count": "$N"
-            }
-        }
-    ]
-}
-'''
-
-#for old funcs, see git
-
 #non-terminals in grammar are {uppercase + _}
 def isNonTerm(s):
     s = s.replace("_","")
@@ -91,12 +61,16 @@ def match_pattern(tokens, rule, start=0):
         #print("\t*Pattern not finished:",rule['name'],":",i,j)
         return FALSE_VAL
 
-def parse_with_grammar(grammar, text):
+def tokenize(text):
     text,subs = atomize.atomize(text)
+    tokens = atomize.smart_split(text)
+    return tokens,subs
+
+def parse_with_grammar(grammar, text):
     #just append to subs!
     #   for now, "replaced"s generated here will be list of toks instead of single string, but that's OK?
-    tokens = atomize.smart_split(text)
-    print("BEFORE", tokens)
+    tokens,subs = tokenize(text)
+    #print("BEFORE", tokens)
 
     for i in range(len(grammar)):
         rule = grammar[i]
