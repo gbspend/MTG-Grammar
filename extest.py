@@ -33,6 +33,11 @@ GRAMMAR = {
 
 #for old funcs, see git
 
+#non-terminals in grammar are {uppercase + _}
+def isNonTerm(s):
+    s = s.replace("_","")
+    return s.isupper() and s.isalpha()
+
 def match_pattern(tokens, rule, start=0):
     pattern = rule["seq"]
 
@@ -63,7 +68,9 @@ def match_pattern(tokens, rule, start=0):
             
         found = False
         for e in expected.split("|"):
-            if e == curr or e == curr.lower(): #TODO: THIS IS HACKY (REQ $ before non-terms in grammar?)
+            temp = curr
+            if not(isNonTerm(e)): temp = temp.lower()
+            if e == temp:
                 i += 1
                 j += 1
                 found = True
