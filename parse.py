@@ -1,4 +1,4 @@
-import atomize
+from atomize import Atomizer
 import gram2obj
 from pprint import pprint
 import re
@@ -8,9 +8,7 @@ def isNonTerm(s):
     s = s.replace("_","")
     return s.isupper() and s.isalpha()
 
-def match_pattern(tokens, rule, start=0):
-    pattern = rule["seq"]
-
+def match_pattern(tokens, pattern, start=0):
     i = start #needed?
     j = 0
     
@@ -37,6 +35,9 @@ def match_pattern(tokens, rule, start=0):
         if expected[-1] == "?":
             optional = True
             expected = expected[:-1]
+        if expected[0] == "_":
+            #TODO LEMMATIZE curr
+            expected = expected[1:]
             
         found = False
         for e in expected.split("|"):
@@ -54,7 +55,7 @@ def match_pattern(tokens, rule, start=0):
             elif optional:
                 j += 1
             else:
-                #print("\t*Mandatory token not matched:",rule['name'],":",i,j)
+                #print("\t*Mandatory token not matched:",pattern,":",i,j)
                 return FALSE_VAL
 
     if j == len(pattern):
@@ -63,10 +64,12 @@ def match_pattern(tokens, rule, start=0):
         #print("\t*Pattern not finished:",rule['name'],":",i,j)
         return FALSE_VAL
 
+#FOR TESTING ONLY, cards' text will be parsed in pretopkl
 def parse_text(grammar, text):
+    a = Atomizer()
     #just append to subs!
     #   for now, "replaced"s generated here will be list of toks instead of single string, but that's OK?
-    tokens,subs = atomize.tokenize(text)
+    tokens,subs = a.tokenize(text)
     #print("BEFORE", tokens)
     return parse(grammar, tokens, subs)
 
@@ -74,13 +77,17 @@ def parse(grammar, tokens, subs):
     for i in range(len(grammar)):
         rule = grammar[i]
         for start in range(len(tokens)):
-            end = match_pattern(tokens, rule,start)
-            if end != -1:
-                n = rule['name']
-                subs.append((n,tokens[start:end])) #BEFORE changing tokens
-                tokens = tokens[:start] + [n] + tokens[end:]
-                i = 0 #RESTART rules!
-                break
+            patterns = rule['seq']
+            if type(patterns[0]) is not list: #detected list of list of tokens
+                patterns = [patterns]
+            for pattern in patterns:
+                end = match_pattern(tokens, pattern,start)
+                if end != -1:
+                    n = rule['name']
+                    subs.append((n,tokens[start:end])) #BEFORE changing tokens
+                    tokens = tokens[:start] + [n] + tokens[end:]
+                    i = 0 #RESTART rules!
+                    break
 
     return tokens, subs
     #how to detect "failure"? I guess leftover literals...
@@ -97,7 +104,7 @@ if __name__ == '__main__':
     
     for t in tests:
         print(t)
-        tokens, subs = parse_with_grammar(grammar,t)
+        tokens, subs = parse_text(grammar,t)
         print("AFTER ", tokens)
         pprint(subs)
         print()

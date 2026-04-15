@@ -1,15 +1,89 @@
 [
+		{
+		name: QUALIFIER,
+		seq: [
+			[COLOR],
+			[noncreature],
+			[artifact],
+			[enchantment],
+			[creature],
+			[permanent]
+		]
+	},
+	{
+		name: QUALIFIED_OBJECT,
+		seq: [QUALIFIER, TYPE]
+	},
+	{
+		name: OBJECT_CORE,
+		seq: [
+			[TYPE],
+			[QUALIFIED_OBJECT]
+		]
+	},
+	{
+		name: TARGETED_OBJECT,
+		seq: [target, OBJECT_CORE]
+	},
+
+	{
+		name: UNTARGETED_OBJECT,
+		seq: [OBJECT_CORE]
+	},
+	{
+		name: OBJECT,
+		seq: [
+			[TARGETED_OBJECT],
+			[UNTARGETED_OBJECT]
+		]
+	},
+	{
+		name: DESTROY,
+		seq: [destroy, OBJECT]
+	},
+	{
+		name: EXILE,
+		seq: [exile, OBJECT]
+	},
+	{
+		name: DAMAGE,
+		seq: [_deal, N, damage, to, OBJECT]
+	},
+	{
+		name: GAIN_LIFE,
+		seq: [_gain, N, life]
+	},
+	{
+		name: LOSE_LIFE,
+		seq: [_lose, N, life]
+	},
+	{
+		name: DISCARD,
+		seq: [_discard, N, QUALIFIER?, cards]
+	},
+	{
+		name: SACRIFICE,
+		seq: [_sacrifice, OBJECT_CORE]
+	},
+	{
+		name: TAP,
+		seq: [_tap, OBJECT]
+	},
+	{
+		name: UNTAP,
+		seq: [_untap, OBJECT]
+	},
 	{
 		name: WITH_EXP,
 		seq: [with, *, PERIOD]
 	},
 	{
 		name: CREATE_CTOKEN,
-		seq: [create, a|an|N, PT, COLOR, CTYPE, creature, token, WITH_EXP?]
+		seq: [_create, a|an|N, PT, COLOR, CTYPE, creature, token, WITH_EXP?]
 	},
 	{
 		name: CREATE_OTOKEN,
-		seq: [create, N, COLOR, TYPE, token]
+		seq: [_create, N, COLOR, TYPE, token]
 	},
 	{
 		name: DRAW,
