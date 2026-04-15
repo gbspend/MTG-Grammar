@@ -22,27 +22,40 @@ if __name__ == "__main__":
         cards = pickle.load(file)
 
     grammar = gram2obj.load("grammar.txt")
-    
+
     N = 100
     total = 0
     done = 0
     part = 0
+    items = []
     for c in cards:
         for line in c['text'].split("\n"):
             old_tok, old_sub = parse.tokenize(line)
             tokens, subs = parse.parse_with_grammar(grammar,line)
             total += 1
             if len(old_tok) > len(tokens):
+                items.append((tokens,subs))
                 part += 1
                 if all_parsed(tokens):
                     done += 1
-                    print(line)
-                    print(old_tok)
-                    print(tokens)
-                    pprint(subs)
-                    print()
-    
+                    #print(line)
+                    #print(old_tok)
+                    #print(tokens)
+                    #pprint(subs)
+                    #print()
+
     print("Total:",total)
     print_percent("Done: ",done,total)
     print_percent("Part: ",part,total)
     #TODO collate and report failures/partials AND false positives! BUT HOW???
+
+    for t,s in items[:10]:
+        print(t)
+        pprint(s)
+        print()
+
+#TODO:
+#   separate effects... COST : EFFECT; TRIGGER , EFFECT; <non-permanent> EFFECT
+#       -likely outside of grammar...
+#   go back and parse COSTs, QUOTABILs, etc.
+

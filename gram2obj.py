@@ -26,6 +26,10 @@ def load(fname):
         for ...
     '''
 '''
+BIG TODO: ORDER grammar rules:
+    - likely build a dependency graph and order by DFS (shouldn't be cycles, right?)
+    - Think carefeully about where seq's with * should go...
+        - late as possible without violating dependency tree?
 Notes: OK, so I need to be thoughtful about "seq" format, esp when building grammar
     There certainly need to be options, e.g. WITH in create token
     ***Something to capture "whatever is between these two non-terms"
