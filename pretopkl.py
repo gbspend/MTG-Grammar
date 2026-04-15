@@ -1,3 +1,4 @@
+from atomize import Atomizer
 import json
 import re
 import pickle
@@ -11,6 +12,7 @@ excl = ['availability','boosterTypes','borderColor','artist','artistIds','finish
 
 names = set()
 cards = []
+atomizer = Atomizer()
 for s in data:
     for c in data[s]['cards']:
         if 'faceName' in c:
@@ -40,9 +42,24 @@ for s in data:
                 if not s:
                     continue
                 lines.append(s)
+            atoms = []
+            for l in lines:
+                atoms.append(atomizer.tokenize(l))
+            c['atoms'] = atoms
             c['text'] = "\n".join(lines)
             cards.append(c)
             names.add(n)
 
+quotabils = sorted(atomizer.quotabils)
+atomizer = Atomizer()
+atom_abils = []
+for s in quotabils:
+    atom_abils.append(atomizer.tokenize(s))
+#print("QUOTA-in-QUOTA:",len(atomizer.quotabils)) #currently 0 because don't match single quote
+
 with open('cards.pkl', 'wb') as f:
     pickle.dump(cards, f, protocol=pickle.HIGHEST_PROTOCOL)
+
+with open('quotabils.pkl', 'wb') as f:
+    pickle.dump(atom_abils, f, protocol=pickle.HIGHEST_PROTOCOL)
+

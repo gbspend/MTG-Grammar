@@ -129,7 +129,7 @@ def matchSub(cards, sub):
     return l
 
 def hasChar(cards, ch):
-    for c in focus:
+    for c in cards:
         if ch in c['text']:
             pprint(c)
             return

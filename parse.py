@@ -61,17 +61,14 @@ def match_pattern(tokens, rule, start=0):
         #print("\t*Pattern not finished:",rule['name'],":",i,j)
         return FALSE_VAL
 
-def tokenize(text):
-    text,subs = atomize.atomize(text)
-    tokens = atomize.smart_split(text)
-    return tokens,subs
-
-def parse_with_grammar(grammar, text):
+def parse_text(grammar, text):
     #just append to subs!
     #   for now, "replaced"s generated here will be list of toks instead of single string, but that's OK?
-    tokens,subs = tokenize(text)
+    tokens,subs = atomize.tokenize(text)
     #print("BEFORE", tokens)
+    return parse(grammar tokens, subs)
 
+def parse(grammar, tokens, subs):
     for i in range(len(grammar)):
         rule = grammar[i]
         for start in range(len(tokens)):

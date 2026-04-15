@@ -61,43 +61,56 @@ COLORS += [s[0].upper()+s[1:] for s in COLORS]
 #       work BACKWARDS through it to undo it..? yes? right?
 #   try it for now
 
-q_abils = [] #TEMP
+class Atomizer:
+    def __init__(self):
+        self.quotabils = set()
 
-#ALL ATOMIC non-terms must go here!
-def atomize(s):
-    global q_abils #TEMP
-    subs = []
-    for ct in CTYPES:
-        if ct in s: #check before doing slow re.sub
-            s = atsub(r"\b"+ct+r"\b","CTYPE",s,subs)
-            s = atsub(r"\b"+ct+r"s\b","CTYPE",s,subs)
-    s = atsub(r"(CTYPE )+CTYPE","CTYPE",s,subs)
-    s = atsub(r'\d+','N',s,subs)
-    for num in NUMS:
-        if num in s:
-            s = atsub(r"\b"+num+r"\b","N",s,subs)
-    for col in COLORS:
-        if col in s:
-            s = atsub(r"\b"+col+r"\b","COLOR",s,subs)
-    if "/" in s:
-        s = atsub(r"[XN]/[XN]","PT",s,subs)
-    if "/" in s:
-        s = atsub(r"[+-]\w\/[+-]\w","PTMOD",s,subs)
-        #after this, only "/" left is "and/or"
-    #s = s.replace("{Q}","{T}") #untap -> tap
-    s = atsub(r"\{[^TM}]*\}","{M}",s,subs) #{mana}
-    s = atsub(r"(\{M\})+","MANA",s,subs)
-    #s = s.replace(" an "," a ")
-    #s = s.replace(" another "," a ")
-    quot_re = r'"[^"]+"'
-    while re.search(quot_re, s):
-        abil = re.search(quot_re, s).group()[1:-1]
-        q_abils.append(abil)
-        repl = "QUOTABIL"
-        #if abil ends in period, add one after QUOTABIL
-        if abil[-1] == "." or abil[-1] == ",":
-            repl += abil[-1]
-        s = re.sub(quot_re,repl,s,count=1)
-    #last step: 2+ spaces -> 1 space
-    s = re.sub("[ ]+"," ",s)
-    return s, subs
+    #ALL ATOMIC non-terms must go here!
+    def atomize(self, s):
+        #DO THIS FIRST, then all QUOTABILs are raw instead of partially processed!
+        #   NOTE: CANNOT add single quote bc would match: ...doesn't untap during its controller's...
+        quot_re = r'"[^"]+"'
+        while re.search(quot_re, s):
+            print(s)
+            abil = re.search(quot_re, s).group()[1:-1]
+            repl = "QUOTABIL"
+            #if abil ends in period or comma, add one after QUOTABIL
+            last = abil[-1]
+            if last == "." or last == ",":
+                repl += last
+                abil = abil[:-1]
+            self.quotabils.add(abil)
+            print(abil)
+            s = re.sub(quot_re,repl,s,count=1)
+            print()
+        subs = []
+        for ct in CTYPES:
+            if ct in s: #check before doing slow re.sub
+                s = atsub(r"\b"+ct+r"\b","CTYPE",s,subs)
+                s = atsub(r"\b"+ct+r"s\b","CTYPE",s,subs)
+        s = atsub(r"(CTYPE )+CTYPE","CTYPE",s,subs)
+        s = atsub(r'\d+','N',s,subs)
+        for num in NUMS:
+            if num in s:
+                s = atsub(r"\b"+num+r"\b","N",s,subs)
+        for col in COLORS:
+            if col in s:
+                s = atsub(r"\b"+col+r"\b","COLOR",s,subs)
+        if "/" in s:
+            s = atsub(r"[XN]/[XN]","PT",s,subs)
+        if "/" in s:
+            s = atsub(r"[+-]\w\/[+-]\w","PTMOD",s,subs)
+            #after this, only "/" left is "and/or"
+        #s = s.replace("{Q}","{T}") #untap -> tap
+        s = atsub(r"\{[^TM}]*\}","{M}",s,subs) #{mana}
+        s = atsub(r"(\{M\})+","MANA",s,subs)
+        #s = s.replace(" an "," a ")
+        #s = s.replace(" another "," a ")
+        #last step: 2+ spaces -> 1 space
+        s = re.sub("[ ]+"," ",s)
+        return s, subs
+
+    def tokenize(self, text):
+        text,subs = self.atomize(text)
+        tokens = smart_split(text)
+        return tokens,subs
