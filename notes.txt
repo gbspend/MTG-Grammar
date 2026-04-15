@@ -1,13 +1,5 @@
 THIS IS GOING TO REQUIRE NL PARSING
 
-Big list of excludes
-{P} (paw) whole card
-{H} whole card (unique)
-{E} (energy) whole card (for now?)
-
-Need to generalize:
- - number-words ("NW"?)
-
 Handle X... tricky because it's woven throughout at least 2 different grammar pieces...
 
 detect "X, Y, or Z": Use spacy dep parse: conj!
@@ -18,9 +10,17 @@ matches
 - COLOR and COLOR
 - COLOR or COLOR
 - etc
-DOESNT match
+DOESNT match \+1
 - g or g
 - E or E
+
+Going forward: this probably needs to be a special step DURING parsing.
+ - Importantly, there may be NON-ATOM RULES that this should apply to...
+		that may make it tricky to know where to add this
+		(likely related to rule ordering)
+ - I think the best approach is to collapse TAG, TAG, or TAG into just TAG...
+
+Similar but different syntax : CTYPE CTYPE -> CTYPE
 
 Need to remove ability words "whatever — Do the thing", BUT
 	some " — " aren't ability words: max speed (???), sagas
@@ -33,4 +33,12 @@ doc = nlp(c['text'])
 for token in doc:
     if "PROPN" in token.pos_:
 		...
-e.g. doc = nlp('Defender\nFlying') marks "Defender" as PROPN...
+e.g. doc = nlp('Defender\nFlying') marks "Defender" as PROPN... \facepalm
+
+No downside, but big upside to lemmatizing everything as first step of atomize??
+
+NEXT BIG STEP: add current parser post-processing: see what still needs to be parsed AND
+automatically analyze un-parsed text (look in "subs", find patterns, etc)
+ - do it automatically/deeply for any patterns with *
+	
+Another thing: get list of all keyword abilities (@_@) and make grammar rules for them
