@@ -29,9 +29,8 @@ if __name__ == "__main__":
     part = 0
     items = []
     for c in cards:
-        for line in c['text'].split("\n"):
-            old_tok, old_sub = parse.tokenize(line)
-            tokens, subs = parse.parse_with_grammar(grammar,line)
+        for old_tok, old_sub in c['atoms']:
+            tokens, subs = parse.parse(grammar,old_tok, old_sub)
             total += 1
             if len(old_tok) > len(tokens):
                 items.append((tokens,subs))

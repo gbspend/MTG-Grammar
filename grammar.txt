@@ -14,9 +14,5 @@
 	{
 		name: DRAW,
 		seq: [draw, N, cards]
-	},
-	{
-		name: COST,
-		seq: [*, COLON]
 	}
 ]

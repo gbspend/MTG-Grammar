@@ -68,7 +68,7 @@ def parse_text(grammar, text):
     #   for now, "replaced"s generated here will be list of toks instead of single string, but that's OK?
     tokens,subs = atomize.tokenize(text)
     #print("BEFORE", tokens)
-    return parse(grammar tokens, subs)
+    return parse(grammar, tokens, subs)
 
 def parse(grammar, tokens, subs):
     for i in range(len(grammar)):
