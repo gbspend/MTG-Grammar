@@ -35,7 +35,8 @@ for token in doc:
 		...
 e.g. doc = nlp('Defender\nFlying') marks "Defender" as PROPN... \facepalm
 
-No downside, but big upside to lemmatizing everything as first step of atomize??
+Any downside to lemmatizing everything as first step of atomize??
+ - YES: "enchant" vs "enchanted"
 
 NEXT BIG STEP: add current parser post-processing: see what still needs to be parsed AND
 automatically analyze un-parsed text (look in "subs", find patterns, etc)

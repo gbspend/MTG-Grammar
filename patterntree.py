@@ -12,6 +12,15 @@ class Node:
         n = Node(s2)
         self.children.append(n)
         return n
+        
+    def dfVisit(self,seq=[]):
+        seq.append(self.s)
+        if self.children:
+            for ch in self.children:
+                ch.dfVisit(seq)
+        else:
+            print(seq)
+            
 
 class PatternTree:
     def __init__(self):

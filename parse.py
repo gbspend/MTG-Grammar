@@ -2,6 +2,13 @@ from atomize import Atomizer
 import gram2obj
 from pprint import pprint
 import re
+#import nltk
+from nltk.stem import WordNetLemmatizer
+
+lemmatizer = WordNetLemmatizer()
+
+def tryLemma(s):
+    return lemmatizer.lemmatize(s, pos='v')
 
 #non-terminals in grammar are {uppercase + _}
 def isNonTerm(s):
@@ -36,7 +43,7 @@ def match_pattern(tokens, pattern, start=0):
             optional = True
             expected = expected[:-1]
         if expected[0] == "_":
-            #TODO LEMMATIZE curr
+            curr = tryLemma(curr)
             expected = expected[1:]
             
         found = False

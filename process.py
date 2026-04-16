@@ -31,8 +31,10 @@ if __name__ == "__main__":
     untouched = [] #indices into cards
     for i in range(len(cards)):
         c = cards[i]
+        parsed = []
         for old_tok, old_sub in c['atoms']:
             tokens, subs = parse.parse(grammar,old_tok, old_sub)
+            parsed.append((tokens,subs))
             total += 1
             if len(old_tok) > len(tokens):
                 items.append((tokens,subs))
@@ -46,6 +48,7 @@ if __name__ == "__main__":
                     #print()
             else:
                 untouched.append(i)
+        c['parsed'] = parsed #keep in card context!
 
     print("Total:",total)
     print_percent("Done: ",done,total)
