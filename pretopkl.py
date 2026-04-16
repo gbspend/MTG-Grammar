@@ -29,7 +29,7 @@ for s in data:
             #           is:commander -name:"," o:~
             t = t.replace(c['name'],"~")
             if "Legendary" in c['type']:
-                t = t.replace(c['name'].split()[0],"~")
+                t = t.replace(c['name'].split()[0][:-1],"~")
             for ty in c['type'].replace("—","").split() + ["permanent", "spell","token"]:
                 ty = ty.strip()
                 if not ty:

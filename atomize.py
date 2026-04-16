@@ -9,6 +9,7 @@ CTYPES = ["Advisor","Aetherborn","Alien","Ally","Angel","Antelope","Ape","Archer
 def sub_split(parts,ch):
     ret = []
     for p in parts:
+        #should this have if not p: continue?
         if ch not in p:
             ret.append(p)
         else:
@@ -25,7 +26,7 @@ def smart_split(s):
     for ch in syms:
         parts = sub_split(parts,ch)
     #pull punct out of quotes by swapping ..., '.', '"', ...
-    #unnecessary after all?
+    #...unnecessary after all?
     for i in range(len(parts)-1):
         if parts[i+1] == '"' and (parts[i] == ',' or parts[i] == '.'):
             temp = parts[i]
@@ -61,28 +62,57 @@ COLORS += [s[0].upper()+s[1:] for s in COLORS]
 #       work BACKWARDS through it to undo it..? yes? right?
 #   try it for now
 
+COST = "COST"
+EFFECT = "EFFECT"
+TRIG_START = set(["when","whenever","at"])
+TRIG = "TRIG"
+POST_TRIG = "POST_TRIG"
+
 class Atomizer:
     def __init__(self):
         self.quotabils = set()
-
-    #ALL ATOMIC non-terms must go here!
-    def atomize(self, s):
-        #DO THIS FIRST, then all QUOTABILs are raw instead of partially processed!
-        #   NOTE: CANNOT add single quote bc would match: ...doesn't untap during its controller's...
-        quot_re = r'"[^"]+"'
+        
+    def pullQuotes(self,s,single):
+        quot_re = r' "[^"]+"'
+        if single:
+            quot_re = r" '[^']+'"
         while re.search(quot_re, s):
-            print(s)
             abil = re.search(quot_re, s).group()[1:-1]
-            repl = "QUOTABIL"
+            repl = " QUOTABIL"
             #if abil ends in period or comma, add one after QUOTABIL
             last = abil[-1]
             if last == "." or last == ",":
                 repl += last
                 abil = abil[:-1]
             self.quotabils.add(abil)
-            print(abil)
+            #print(abil)
             s = re.sub(quot_re,repl,s,count=1)
-            print()
+            #print()
+        return s
+
+    #ALL ATOMIC non-terms must go here!
+    def atomize(self, s):
+        #DO THIS FIRST, then all QUOTABILs are raw instead of partially processed!
+        #   NOTE: CANNOT add single quote bc would match: ...doesn't untap during its controller's...
+        s = self.pullQuotes(s,True) #single first!
+        s = self.pullQuotes(s,False) #single first!
+        first = s.strip().lower().split()[0]
+        if first in TRIG_START:
+            i = s.find(",")
+            if i != -1:
+                trig = s[:i].strip()
+                post = s[i+1:].strip()
+                s = TRIG+", "+POST_TRIG
+                t,tsub = self.atomize(trig)
+                p,psub = self.atomize(post)
+                return s, tsub+psub+[(TRIG,t),(POST_TRIG,p)]
+            #else: just continue (because we're probably in a "TRIG" s
+        if ":" in s:
+            cost,effect = s.split(":")
+            s = COST+": "+EFFECT
+            c,csub = self.atomize(cost.strip())
+            e,esub = self.atomize(effect.strip())
+            return s, csub+esub+[(COST,c),(EFFECT,e)]
         subs = []
         for ct in CTYPES:
             if ct in s: #check before doing slow re.sub
@@ -114,3 +144,4 @@ class Atomizer:
         text,subs = self.atomize(text)
         tokens = smart_split(text)
         return tokens,subs
+    
