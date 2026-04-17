@@ -5,6 +5,8 @@ import requests
 
 base = "https://mtg.wiki"
 
+SEP = "%@%" #something unlikely to appear in html
+
 def parsePage(rel):
     response = requests.get(base+rel)
     soup2 = BeautifulSoup(response.content, "html.parser")
@@ -23,11 +25,15 @@ def parsePage(rel):
         if th.text == 'Reminder Text':
             r = t.find("td")
             if r:
-                #remove all tags, leaving text
+                #multiple formats of keyword are separated with <br>
+                for br in r.find_all("br"):
+                    br.replace_with(SEP)
+                #remove all other tags, leaving text
                 for tag in r.find_all():
                     tag.decompose()
                 raw_rem = r.text.strip() #cut out pre and post td
-                rem = [s.strip() for s in raw_rem.split("  ") if s] #can we count on splitting on "  "?
+                raw_rem = re.sub(r"\s+"," ",raw_rem)
+                rem = [s.strip() for s in raw_rem.split(SEP) if s] #can we count on splitting on "  "?
     return typ, rem        
 
 
@@ -41,8 +47,6 @@ soup = BeautifulSoup(response.content, "html.parser")
 boxes = soup.findAll(True, {'class':['crDiv','crBox']})
 topu = boxes[2].find('ul')
 u = topu.find('ul')
-i = 0
-
 all_abils = {}
 for t in u.children:
     a = t.find('a')
