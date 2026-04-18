@@ -17,7 +17,7 @@ def print_percent(name, n, total):
     p = (n/total) * 100
     print(name,n,f"({p:.2f}%)")
 
-def process():
+def processAll():
     with open('cards.pkl', 'rb') as file:
         cards = pickle.load(file)
 
@@ -75,10 +75,10 @@ def process():
                 if tok == supertok:
                     pts[supertok].addToks(atomize.smart_split(s))
     
-    return pts
+    return all_items, pts
 
 if __name__ == "__main__":
-    pts = process()
+    all_items, pts = processAll()
     pt = pts["COST"]
     candidates = sorted(pt.root.children, key=lambda n:n.count, reverse=True)
     for n in candidates[:20]:
@@ -87,8 +87,8 @@ if __name__ == "__main__":
 
 '''
 
-from process import process
-pts = process()
+from process import processAll
+all_items, pts = processAll()
 pt = pts["COST"]
 candidates = sorted(pt.root.children, key=lambda n:n.count, reverse=True)
 print(len(candidates))

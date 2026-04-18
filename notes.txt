@@ -25,6 +25,7 @@ Similar but different syntax : CTYPE CTYPE -> CTYPE
 REMOVED ability words "whatever — Do the thing", BUT
 	some " — " aren't ability words: max speed (???), sagas
 	flavor words " — " rabbit hole is VERY DEEP @_@
+	[see sandbox.py]
 
 Add "choose N" bullets to effects (could also do {P} above, actually...)
 

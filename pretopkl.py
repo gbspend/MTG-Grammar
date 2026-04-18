@@ -31,6 +31,8 @@ for s in data:
             #remove parentheticals
             if "(" in t:
                 t = re.sub(r'\([^)]*\)', '', t).strip()
+            if '−' in t: #THIS IS NOT A HYPHEN, it's b'\xe2\x88\x92' (???)
+                t = t.replace('−','-')
             #remove ability words
             if "—" in t:
                 for aw in ABIL_WS:

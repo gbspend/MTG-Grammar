@@ -129,11 +129,13 @@ class Atomizer:
         if "/" in s:
             s = atsub(r"[XN]/[XN]","PT",s,subs)
         if "/" in s:
-            s = atsub(r"[+-]\w\/[+-]\w","PTMOD",s,subs)
+            s = atsub(r"[-+]\w\/[-+]\w","PTMOD",s,subs)
             #after this, only "/" left is "and/or"
         #s = s.replace("{Q}","{T}") #untap -> tap
         s = atsub(r"\{[^TM}]*\}","{M}",s,subs) #{mana}
         s = atsub(r"(\{M\})+","MANA",s,subs)
+        s = atsub(r"\[[-+XN]+\]","LOY",s,subs)
+        
         #s = s.replace(" an "," a ")
         #s = s.replace(" another "," a ")
         #last step: 2+ spaces -> 1 space
