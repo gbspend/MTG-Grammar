@@ -42,7 +42,11 @@ for s in data:
             #       that leg-1st-name is exactly everything before first space \shrug
             t = t.replace(c['name'],"~")
             if "Legendary" in c['type']:
-                t = t.replace(c['name'].split()[0][:-1],"~")
+                if "," in c['name']:
+                    single_name = c['name'].split(",")[0].strip()
+                else:
+                    single_name = c['name'].split()[0].strip()
+                t = t.replace(single_name,"~")
             for ty in c['type'].replace("—","").split() + ["permanent", "spell","token"]:
                 ty = ty.strip()
                 if not ty:

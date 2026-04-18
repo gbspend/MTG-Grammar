@@ -61,8 +61,8 @@ def process():
         pprint(s)
         print()
     '''
-    print("CARDS LEN:",len(cards))
-    print("ALL_ITEMS LEN:",len(all_items))
+    print("CARDS LEN:  ",len(cards))
+    print("ALL_ITS LEN:",len(all_items))
     
     pts = {}
     for supertok in ["COST","EFFECT","TRIG","POST_TRIG"]:
@@ -90,9 +90,11 @@ if __name__ == "__main__":
 from process import process
 pts = process()
 pt = pts["COST"]
-candidates = sorted(pt.root.children[0].children, key=lambda n:n.count, reverse=True)
+candidates = sorted(pt.root.children, key=lambda n:n.count, reverse=True)
+print(len(candidates))
 for n in candidates[:20]:
     print(n.s)
+
 
 '''
 
