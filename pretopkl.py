@@ -8,7 +8,12 @@ import pickle
 with open('Modern.json', 'r', encoding='utf-8') as f:
     data = json.load(f)['data']
 
-excl = ['availability','boosterTypes','borderColor','artist','artistIds','finishes','foreignData','identifiers','legalities','originalText','originalType','printings','purchaseUrls','rulings','skuIds','sourceProducts','uuid']
+EXCL = ['availability','boosterTypes','borderColor','artist','artistIds','finishes','foreignData','identifiers','legalities','originalText','originalType','printings','purchaseUrls','rulings','skuIds','sourceProducts','uuid']
+
+#This is annoying, and MUCH WORSE for flavor words! >:(
+#If card text has <i> (or w/e), this would be a single regex sub!
+#   Issue submitted to mtgjson GitHub \crossfingers
+ABIL_WS = ["Adamant", "Addendum", "Alliance", "Battalion", "Bloodrush", "Celebration", "Channel", "Chroma", "Cohort", "Constellation", "Converge", "Corrupted", "Council's dilemma", "Coven", "Delirium", r"Descend \d", "Domain", "Eerie", "Eminence", "Enrage", "Fateful Hour", "Fathomless descent", "Ferocious", "Flurry", "Formidable", "Grandeur", "Hellbent", "Heroic", "Imprint", "Inspired", "Join forces", "Kinship", "Landfall", "Lieutenant", "Magecraft", "Metalcraft", "Morbid", "Pack tactics", "Parade!", "Paradox", "Parley", "Radiance", "Raid", "Rally", "Renew", "Revolt", "Secret council", "Spell mastery", "Strive", "Survival", "Sweep", "Tempting offer", "Threshold", "Undergrowth", "Valiant", r"Will of the \w+"]
 
 names = set()
 cards = []
@@ -19,14 +24,22 @@ for s in data:
             c['name'] = c['faceName']
         n = c['name']
         if n not in names and 'paper' in c['availability'] and 'text' in c:
-            for e in excl:
+            for e in EXCL:
                 if e in c:
                     del c[e]
+            t = c['text']
             #remove parentheticals
-            t = re.sub(r'\([^)]*\)', '', c['text']).strip()
+            if "(" in t:
+                t = re.sub(r'\([^)]*\)', '', t).strip()
+            #remove ability words
+            if "—" in t:
+                for aw in ABIL_WS:
+                    aw = aw.lower()
+                    if aw in t.lower():
+                        t = re.sub(aw+' — ', '', t, flags=re.I).strip()
             #replace name with ~
-            #   TODO: doesn't handle legendary-first-name in text WITHOUT comma in name:
-            #           is:commander -name:"," o:~
+            #   should handle legendary-first-name in text WITHOUT comma in name, IF
+            #       that leg-1st-name is exactly everything before first space \shrug
             t = t.replace(c['name'],"~")
             if "Legendary" in c['type']:
                 t = t.replace(c['name'].split()[0][:-1],"~")

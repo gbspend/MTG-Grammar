@@ -22,9 +22,9 @@ Going forward: this probably needs to be a special step DURING parsing.
 
 Similar but different syntax : CTYPE CTYPE -> CTYPE
 
-Need to remove ability words "whatever — Do the thing", BUT
+REMOVED ability words "whatever — Do the thing", BUT
 	some " — " aren't ability words: max speed (???), sagas
-	the " — " rabbit hole is VERY DEEP @_@
+	flavor words " — " rabbit hole is VERY DEEP @_@
 
 Add "choose N" bullets to effects (could also do {P} above, actually...)
 

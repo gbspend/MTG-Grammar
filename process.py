@@ -17,7 +17,7 @@ def print_percent(name, n, total):
     p = (n/total) * 100
     print(name,n,f"({p:.2f}%)")
 
-if __name__ == "__main__":
+def process():
     with open('cards.pkl', 'rb') as file:
         cards = pickle.load(file)
 
@@ -27,7 +27,7 @@ if __name__ == "__main__":
     total = 0
     done = 0
     part = 0
-    items = []
+    all_items = []
     untouched = [] #indices into cards
     for i in range(len(cards)):
         c = cards[i]
@@ -36,8 +36,8 @@ if __name__ == "__main__":
             tokens, subs = parse.parse(grammar,old_tok, old_sub)
             parsed.append((tokens,subs))
             total += 1
+            all_items.append((tokens,subs))
             if len(old_tok) > len(tokens):
-                items.append((tokens,subs))
                 part += 1
                 if all_parsed(tokens):
                     done += 1
@@ -56,26 +56,49 @@ if __name__ == "__main__":
     #TODO collate and report failures/partials AND false positives! BUT HOW???
 
     '''
-    for t,s in items[:10]:
+    for t,s in all_items[:10]:
         print(t)
         pprint(s)
         print()
     '''
+    print("CARDS LEN:",len(cards))
+    print("ALL_ITEMS LEN:",len(all_items))
+    
+    pts = {}
+    for supertok in ["COST","EFFECT","TRIG","POST_TRIG"]:
+        if supertok not in pts:
+            pts[supertok] = PatternTree()
+        #look for patterns!
+        #   TODO: also look in subs, esp. * rules
+        for toks, subs in all_items:
+            for tok,s in subs:
+                if tok == supertok:
+                    pts[supertok].addToks(atomize.smart_split(s))
+    
+    return pts
 
-    pt = PatternTree()
-    #look for patterns!
-    #   TODO: also look in subs, esp. * rules
-    for i in untouched:
-        c = cards[i]
-        for toks, subs in c['atoms']:
-            pt.addToks(toks)
-
+if __name__ == "__main__":
+    pts = process()
+    pt = pts["COST"]
     candidates = sorted(pt.root.children, key=lambda n:n.count, reverse=True)
     for n in candidates[:20]:
         print(n.s)
 
-    #TODO:
-    #   separate effects... COST : EFFECT; TRIGGER , EFFECT; <non-permanent> EFFECT
-    #       -likely outside of grammar...
-    #   go back and parse COSTs, QUOTABILs, etc.
+
+'''
+
+from process import process
+pts = process()
+pt = pts["COST"]
+candidates = sorted(pt.root.children[0].children, key=lambda n:n.count, reverse=True)
+for n in candidates[:20]:
+    print(n.s)
+
+'''
+
+
+#TODO:
+#   separate effects... COST : EFFECT; TRIGGER , EFFECT; <non-permanent> EFFECT
+#       -likely outside of grammar...
+#   go back and parse COSTs, QUOTABILs, etc.
 
