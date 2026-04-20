@@ -2,7 +2,7 @@ class Node:
     def __init__(self,s):
         self.s = s
         self.children = []
-        self.count = 0
+        self.count = 1
     
     def add(self,s2):
         for n in self.children:
@@ -20,7 +20,6 @@ class Node:
                 ch.dfVisit(seq)
         else:
             print(seq)
-            
 
 class PatternTree:
     def __init__(self):
@@ -30,3 +29,5 @@ class PatternTree:
         curr = self.root
         for t in toks:
             curr = curr.add(t)
+    
+    

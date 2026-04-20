@@ -77,9 +77,55 @@ def processAll():
     
     return all_items, pts
 
+def mostRec(curr,depth,tabs):
+    ts = "  "*tabs
+    if depth > 0:
+        print(curr.s)
+        if curr.children:
+            end_at_curr = curr.count - sum(n.count for n in curr.children)
+            for child in sorted(
+                curr.children+[curr],
+                key=lambda n:end_at_curr if n == curr else n.count,
+                reverse=True
+                ):
+                if child.count == 1:
+                    continue
+                if child == curr:
+                    if end_at_curr > 0:
+                        print(ts+"|")
+                        print(ts+str(end_at_curr)+"--> STOP")
+                else:
+                    print(ts+"|")
+                    print(ts+str(child.count)+"--> ",end="")
+                    mostRec(child,depth-1,tabs+1)
+    else:
+        print(mosts(curr)+" [...]")
+            
+
+def mosts(curr):
+    out = []
+    while True:
+        out.append(curr.s)
+        if not curr.children:
+            break
+        end_at_curr = curr.count - sum(n.count for n in curr.children)
+        curr = sorted(curr.children, key=lambda n:n.count, reverse=True)[0]
+        #calculate how many strings end at current node; if that's greater
+        #   than sum of all child counts, we stop here
+        if curr.count == 1 or end_at_curr > curr.count:
+            break
+    return " ".join(out)
+
 if __name__ == "__main__":
     all_items, pts = processAll()
     pt = pts["COST"]
+    
+    mostRec(pt.root,3,0)
+    
+    exit()
+    print(pt.root.mosts())
+    print()
+    
     candidates = sorted(pt.root.children, key=lambda n:n.count, reverse=True)
     for n in candidates[:20]:
         print(n.s)
@@ -97,8 +143,6 @@ for n in candidates[:20]:
 
 
 '''
-
-
 #TODO:
 #   separate effects... COST : EFFECT; TRIGGER , EFFECT; <non-permanent> EFFECT
 #       -likely outside of grammar...

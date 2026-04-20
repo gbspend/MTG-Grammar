@@ -71,6 +71,7 @@ POST_TRIG = "POST_TRIG"
 class Atomizer:
     def __init__(self):
         self.quotabils = set()
+        self.dupes = set()
         
     def pullQuotes(self,s,single):
         quot_re = r' "[^"]+"'
@@ -94,8 +95,8 @@ class Atomizer:
     def atomize(self, s):
         #DO THIS FIRST, then all QUOTABILs are raw instead of partially processed!
         #   NOTE: CANNOT add single quote bc would match: ...doesn't untap during its controller's...
-        s = self.pullQuotes(s,True) #single first!
-        s = self.pullQuotes(s,False) #single first!
+        s = self.pullQuotes(s,True) #single (internal) first!
+        s = self.pullQuotes(s,False)
         first = s.strip().lower().split()[0]
         if first in TRIG_START:
             i = s.find(",")
@@ -135,9 +136,36 @@ class Atomizer:
         s = atsub(r"\{[^TM}]*\}","{M}",s,subs) #{mana}
         s = atsub(r"(\{M\})+","MANA",s,subs)
         s = atsub(r"\[[-+XN]+\]","LOY",s,subs)
+        #STILL WORKING...
+        if ", " in s or " and " in s or " or " in s:
+            while True:
+                m = re.search(r"([A-Z]{2,})(, \1)*,? (and|or) \1",s)
+                if m:
+                    dup = m.group()
+                    single = dup.split()[0]
+                    if single[-1] == ",":
+                        single = single[:-1]
+                    if ", "+dup in s:
+                        #odd edge cases like:
+                        # - "As long as..., CTYPE and CTYPE get..."
+                        # - "...if you control a planeswalker, CTYPE, CTYPE,..."
+                        #print(s)
+                        break
+                    else:
+                        subs.append((single,dup))
+                        s = s.replace(dup,single,1)
+                else:
+                    break
+        #generic OR & AND pattern?
+        #m = re.search(r"[^,]+(, [^,]+)+, (and|or) \[^,.]+",s)
+        #if m:
+        #    self.dupes.add(m.group())
         
-        #s = s.replace(" an "," a ")
-        #s = s.replace(" another "," a ")
+        #DOESN'T WORK: s = atsub(r"\b(a|an|another)\b","A",s,subs,re.I)
+        #   replace A -> A ... \facepalm
+        if "a " in s or "an " in s or "another " in s: #not perfect
+            s = re.sub(r"\b(a|an|another)\b","A",s,flags=re.I)
+        
         #last step: 2+ spaces -> 1 space
         s = re.sub("[ ]+"," ",s)
         return s, subs
