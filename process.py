@@ -20,6 +20,10 @@ def print_percent(name, n, total):
 def processAll():
     with open('cards.pkl', 'rb') as file:
         cards = pickle.load(file)
+    
+    with open('quotabils.pkl', 'rb') as file:
+        quotabils = pickle.load(file)
+
 
     grammar = gram2obj.load("grammar.txt")
 
@@ -28,15 +32,15 @@ def processAll():
     done = 0
     part = 0
     all_items = []
-    untouched = [] #indices into cards
-    for i in range(len(cards)):
-        c = cards[i]
+    #untouched = []
+    #put in common format so can parse w/ same loop
+    cards_n_abils = [(c['atoms'],c) for c in cards] + [(quotabils,None)]
+    for atoms, c in cards_n_abils:
         parsed = []
-        for old_tok, old_sub in c['atoms']:
+        for old_tok, old_sub in atoms:
             tokens, subs = parse.parse(grammar,old_tok, old_sub)
             parsed.append((tokens,subs))
             total += 1
-            all_items.append((tokens,subs))
             if len(old_tok) > len(tokens):
                 part += 1
                 if all_parsed(tokens):
@@ -46,9 +50,11 @@ def processAll():
                     #print(tokens)
                     #pprint(subs)
                     #print()
-            else:
-                untouched.append(i)
-        c['parsed'] = parsed #keep in card context!
+            #else: #not useful?
+            #    untouched.append(i)
+        all_items += parsed
+        if c:
+            c['parsed'] = parsed #keep in card context!
 
     print("Total:",total)
     print_percent("Done: ",done,total)

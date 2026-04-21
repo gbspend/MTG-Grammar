@@ -78,7 +78,7 @@ class Atomizer:
         if single:
             quot_re = r" '[^']+'"
         while re.search(quot_re, s):
-            abil = re.search(quot_re, s).group()[1:-1]
+            abil = re.search(quot_re, s).group()[2:-1]
             repl = " QUOTABIL"
             #if abil ends in period or comma, add one after QUOTABIL
             last = abil[-1]
