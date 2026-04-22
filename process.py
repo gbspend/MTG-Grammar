@@ -126,7 +126,13 @@ if __name__ == "__main__":
     all_items, pts = processAll()
     pt = pts["COST"]
     
-    mostRec(pt.root,3,0)
+    #print("COST")
+    #mostRec(pt.root,3,0)
+    
+    candidates = sorted(pt.root.children, key=lambda n:n.count, reverse=True)
+    m = candidates[0]
+    print("MANA\n|")
+    mostRec(m.children[0],100000,0)
     
     exit()
     print(pt.root.mosts())
@@ -139,7 +145,7 @@ if __name__ == "__main__":
 
 '''
 
-from process import processAll
+from process import processAll, mostRec
 all_items, pts = processAll()
 pt = pts["COST"]
 candidates = sorted(pt.root.children, key=lambda n:n.count, reverse=True)
